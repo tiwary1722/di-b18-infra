@@ -1,4 +1,4 @@
-name: Terraform Preprod
+name: "Terraform Preprod"
 
 on:
   pull_request:
@@ -23,9 +23,8 @@ permissions:
   pull-requests: write
 
 jobs:
-
   terraform-plan:
-    name: Terraform Plan
+    name: "Terraform Plan"
     if: github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
 
@@ -34,7 +33,6 @@ jobs:
         working-directory: environments/preprod
 
     steps:
-
       - name: Checkout Code
         uses: actions/checkout@v4
 
@@ -43,8 +41,7 @@ jobs:
         with:
           client-id: ${{ secrets.AZURE_CLIENT_ID }}
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
-          subscription-id: ${{ secrets.AZURE_bdb45ccb-8071-4cb2-baab-27ba6e261894
-                     }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
@@ -58,9 +55,8 @@ jobs:
       - name: Terraform Plan
         run: terraform plan
 
-
   terraform-apply:
-    name: Terraform Apply
+    name: "Terraform Apply"
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
 
@@ -69,17 +65,15 @@ jobs:
         working-directory: environments/preprod
 
     steps:
-
       - name: Checkout Code
         uses: actions/checkout@v4
 
       - name: Azure Login
         uses: azure/login@v2
         with:
-          client-id: ${{ secrets.AZURE_a7ad17a4-efea-488f-aa85-8a4153fab3c6 }}
-          tenant-id: ${{ secrets.AZURE_023fb05c-56eb-40e7-a4dc-761a0f360913 }}
-          subscription-id: ${{ secrets.AZURE_bdb45ccb-8071-4cb2-baab-27ba6e261894 }}
- 
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
