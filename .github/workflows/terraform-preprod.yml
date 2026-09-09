@@ -1,0 +1,27 @@
+name: Terraform Preprod
+
+on:
+  workflow_dispatch:
+
+jobs:
+  terraform:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+
+      - name: Terraform Init
+        working-directory: environments/preprod
+        run: terraform init
+
+      - name: Terraform Validate
+        working-directory: environments/preprod
+        run: terraform validate
+
+      - name: Terraform Plan
+        working-directory: environments/preprod
+        run: terraform plan
