@@ -1,37 +1,28 @@
 name: "Terraform Preprod"
 
 on:
-  pull_request:
-    branches:
-      - main
-    paths:
-      - 'environments/preprod/**'
-      - 'modules/**'
-
   push:
     branches:
       - main
     paths:
       - 'environments/preprod/**'
       - 'modules/**'
-
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'environments/preprod/**'
+      - 'modules/**'
   workflow_dispatch:
 
 permissions:
   id-token: write
   contents: read
-  pull-requests: write
 
 jobs:
   terraform-plan:
     name: "Terraform Plan"
-    if: github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
-
-    defaults:
-      run:
-        working-directory: environments/preprod
-
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
@@ -47,23 +38,18 @@ jobs:
         uses: hashicorp/setup-terraform@v3
 
       - name: Terraform Init
+        working-directory: environments/preprod
         run: terraform init
 
-      - name: Terraform Validate
-        run: terraform validate
-
       - name: Terraform Plan
+        working-directory: environments/preprod
         run: terraform plan
 
   terraform-apply:
     name: "Terraform Apply"
-    if: (github.event_name == 'push' || github.event_name == 'workflow_dispatch') && github.ref == 'refs/heads/main'
+    needs: [terraform-plan]
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
-
-    defaults:
-      run:
-        working-directory: environments/preprod
-
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
@@ -79,18 +65,9 @@ jobs:
         uses: hashicorp/setup-terraform@v3
 
       - name: Terraform Init
+        working-directory: environments/preprod
         run: terraform init
 
-      - name: Terraform Validate
-        run: terraform validate
-
-      - name: Terraform Plan
-        run: terraform plan -out=tfplan
-
       - name: Terraform Apply
-        run: terraform apply -auto-approve tfplan
-      - name: Terraform Plan
-        run: terraform plan -out=tfplan
-
-      - name: Terraform Apply
-        run: terraform apply -auto-approve tfplan
+        working-directory: environments/preprod
+        run: terraform apply -auto-approve
