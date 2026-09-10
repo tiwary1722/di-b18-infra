@@ -7,14 +7,12 @@ on:
     paths:
       - 'environments/preprod/**'
       - 'modules/**'
-
   push:
     branches:
       - main
     paths:
       - 'environments/preprod/**'
       - 'modules/**'
-
   workflow_dispatch:
 
 permissions:
@@ -25,13 +23,10 @@ permissions:
 jobs:
   terraform-plan:
     name: "Terraform Plan"
-    if: github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
-
     defaults:
       run:
         working-directory: environments/preprod
-
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
@@ -57,13 +52,12 @@ jobs:
 
   terraform-apply:
     name: "Terraform Apply"
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: [terraform-plan]
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
-
     defaults:
       run:
         working-directory: environments/preprod
-
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
@@ -84,13 +78,5 @@ jobs:
       - name: Terraform Validate
         run: terraform validate
 
-      - name: Terraform Plan
-        run: terraform plan -out=tfplan
-
       - name: Terraform Apply
-        run: terraform apply -auto-approve tfplan
-      - name: Terraform Plan
-        run: terraform plan -out=tfplan
-
-      - name: Terraform Apply
-        run: terraform apply -auto-approve tfplan
+        run: terraform apply -auto-approve
